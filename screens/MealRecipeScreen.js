@@ -5,13 +5,16 @@ import {
     StyleSheet,
     FlatList,
     ScrollView,
+    Button,
 } from "react-native"
 import { MEALS } from "../data/dummy-data"
 
-import React from "react"
+import { useLayoutEffect } from "react"
 import MealDetails from "../components/MealDetails"
+import List from "../components/List"
+import IconButton from "../components/IconButton"
 
-export default function MealRecipeScreen({ route }) {
+export default function MealRecipeScreen({ route, navigation }) {
     const mealId = route.params.mealId
 
     const displayedMeal = MEALS.find((meal) => meal.id === mealId)
@@ -24,9 +27,25 @@ export default function MealRecipeScreen({ route }) {
         complexity,
         affordability,
     } = displayedMeal
-    console.log(displayedMeal)
+    function headerfnc() {
+        console.log("header btn pressed")
+    }
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerRight: () => {
+                return (
+                    <IconButton
+                        icon={"star"}
+                        color={"white"}
+                        onPress={headerfnc}
+                    />
+                )
+            },
+        })
+    }, [navigation, headerfnc])
     return (
-        <ScrollView>
+        <ScrollView style={styles.root}>
             <View>
                 <Image style={styles.image} source={{ uri: imageUrl }} />
             </View>
@@ -40,35 +59,25 @@ export default function MealRecipeScreen({ route }) {
                     textStyle={styles.textDetails}
                 />
             </View>
-            <View>
-                <View style={styles.subtitleContainer}>
-                    <Text style={styles.subtitle}>Ingredients</Text>
+            <View style={styles.listOuterContainer}>
+                <View style={styles.listInnerContainer}>
+                    <View style={styles.subtitleContainer}>
+                        <Text style={styles.subtitle}>Ingredients</Text>
+                    </View>
+
+                    <List data={ingredients} />
+                    <View style={styles.subtitleContainer}>
+                        <Text style={styles.subtitle}>Steps</Text>
+                    </View>
+                    <List data={steps} />
                 </View>
-                <FlatList
-                    data={ingredients}
-                    keyExtractor={(item) => item}
-                    renderItem={(item) => {
-                        return <Text>{item.item}</Text>
-                    }}
-                />
-            </View>
-            <View>
-                <View style={styles.subtitleContainer}>
-                    <Text style={styles.subtitle}>Steps</Text>
-                </View>
-                <FlatList
-                    data={steps}
-                    keyExtractor={(item) => item}
-                    renderItem={(item) => {
-                        return <Text>{item.item}</Text>
-                    }}
-                />
             </View>
         </ScrollView>
     )
 }
 
 const styles = StyleSheet.create({
+    root: { marginBottom: 32 },
     image: { width: "100%", height: 350 },
     title: {
         fontWeight: "bold",
@@ -89,9 +98,13 @@ const styles = StyleSheet.create({
     },
     subtitleContainer: {
         marginVertical: 4,
-        marginHorizontal: 24,
+        marginHorizontal: 12,
         padding: 8,
         borderBottomColor: "#b7ddff",
         borderBottomWidth: 2,
     },
+    listOuterContainer: {
+        alignItems: "center",
+    },
+    listInnerContainer: { width: "80%" },
 })
